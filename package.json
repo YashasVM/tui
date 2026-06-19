@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/YashasVM/tui#readme",
   "bin": {
-    "tui-portfolio": "./dist/cli.js"
+    "tui-portfolio": "dist/cli.js"
   },
   "files": [
     "dist",
