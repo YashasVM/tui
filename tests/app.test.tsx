@@ -9,6 +9,8 @@ describe("App", () => {
     const {lastFrame} = render(<App content={fixtureContent} skipBoot />);
     expect(lastFrame()).toContain("tui-portfolio");
     expect(lastFrame()).toContain("Ada Dev / Systems Builder");
+    expect(lastFrame()).toContain("view:home");
+    expect(lastFrame()).toContain("terminal portfolio");
     expect(lastFrame()).toContain("featured:");
   });
 });

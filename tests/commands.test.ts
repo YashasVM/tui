@@ -36,4 +36,20 @@ describe("executeCommand", () => {
     const result = executeCommand("theme green", fixtureContent, "amber");
     expect(result.theme).toBe("green");
   });
+
+  it("activates the overdrive view from aliases", () => {
+    const result = executeCommand("wow", fixtureContent, "amber");
+    expect(result.view).toBe("reactor");
+    expect(result.lines?.join("\n")).toContain("portfolio reactor");
+  });
+
+  it("renders constellation and radar commands", () => {
+    expect(executeCommand("constellation", fixtureContent, "amber").view).toBe("constellation");
+    expect(executeCommand("radar", fixtureContent, "amber").lines?.join("\n")).toContain("skill radar");
+  });
+
+  it("supports expanded theme names", () => {
+    const result = executeCommand("theme hotline", fixtureContent, "amber");
+    expect(result.theme).toBe("hotline");
+  });
 });

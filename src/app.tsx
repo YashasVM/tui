@@ -2,6 +2,15 @@ import React, {useEffect, useMemo, useState} from "react";
 import {Box, Text, useApp, useInput, useStdout} from "ink";
 import TextInput from "ink-text-input";
 import {executeCommand, type CommandResult} from "./commands.js";
+import {
+  renderMatrixRain,
+  renderProjectConstellation,
+  renderReactor,
+  renderSignalScope,
+  renderSkillRadar,
+  renderTimeline,
+  type ViewName
+} from "./spectacle.js";
 import {themes} from "./theme.js";
 import type {PortfolioContent, ThemeName} from "./types.js";
 import {Frame} from "./components/Frame.js";
@@ -28,6 +37,8 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
   const [themeName, setThemeName] = useState<ThemeName>("amber");
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [activeView, setActiveView] = useState<ViewName>("home");
+  const [tick, setTick] = useState(0);
   const [bootComplete, setBootComplete] = useState(skipBoot);
   const [bootIndex, setBootIndex] = useState(skipBoot ? bootLines.length : 0);
   const {exit} = useApp();
@@ -55,6 +66,15 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
     }
   });
 
+  useEffect(() => {
+    if (!bootComplete) {
+      return;
+    }
+
+    const timer = setInterval(() => setTick((value) => value + 1), 180);
+    return () => clearInterval(timer);
+  }, [bootComplete]);
+
   const featured = useMemo(() => content.projects.filter((project) => project.featured).slice(0, 3), [content.projects]);
 
   function submit(commandText: string): void {
@@ -64,9 +84,14 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
       setThemeName(result.theme);
     }
 
+    if (result.view) {
+      setActiveView(result.view);
+    }
+
     if (result.clear) {
       setHistory([]);
       setInput("");
+      setActiveView("home");
       return;
     }
 
@@ -89,12 +114,19 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
             <Box marginY={1}>
               <Text color={theme.muted}>type </Text>
               <Text color={theme.accent}>help</Text>
-              <Text color={theme.muted}> to inspect commands, </Text>
-              <Text color={theme.accent}>projects</Text>
-              <Text color={theme.muted}> to scan work, </Text>
+              <Text color={theme.muted}> or </Text>
+              <Text color={theme.accent}>launch</Text>
+              <Text color={theme.muted}>. try </Text>
+              <Text color={theme.accent}>constellation</Text>
+              <Text color={theme.muted}>, </Text>
+              <Text color={theme.accent}>radar</Text>
+              <Text color={theme.muted}>, </Text>
+              <Text color={theme.accent}>matrix</Text>
+              <Text color={theme.muted}>. </Text>
               <Text color={theme.accent}>esc</Text>
               <Text color={theme.muted}> to quit.</Text>
             </Box>
+            <LiveDeck content={content} themeName={themeName} activeView={activeView} tick={tick} />
             <FeaturedProjects items={featured} themeName={themeName} />
             <History entries={history} themeName={themeName} />
             <Prompt input={input} onChange={setInput} onSubmit={submit} themeName={themeName} />
@@ -154,9 +186,65 @@ function FeaturedProjects({items, themeName}: {items: PortfolioContent["projects
   );
 }
 
+function LiveDeck({
+  content,
+  themeName,
+  activeView,
+  tick
+}: {
+  content: PortfolioContent;
+  themeName: ThemeName;
+  activeView: ViewName;
+  tick: number;
+}): React.ReactElement {
+  const theme = themes[themeName];
+  const lines = activeViewLines(content, activeView, tick);
+
+  return (
+    <Box flexDirection="column" marginBottom={1}>
+      <Text color={theme.muted}>view:{activeView} tick:{String(tick % 1000).padStart(3, "0")}</Text>
+      {lines.map((line, index) => (
+        <Text key={`${activeView}-${index}-${line}`} color={index === 0 ? theme.accent : theme.foreground}>
+          {line || " "}
+        </Text>
+      ))}
+    </Box>
+  );
+}
+
+function activeViewLines(content: PortfolioContent, activeView: ViewName, tick: number): string[] {
+  switch (activeView) {
+    case "constellation":
+      return renderProjectConstellation(content.projects, tick);
+    case "radar":
+      return renderSkillRadar(content.skills, tick);
+    case "timeline":
+      return renderTimeline(content);
+    case "reactor":
+      return renderReactor(content, tick);
+    case "matrix":
+      return renderMatrixRain(content, tick);
+    case "home":
+    default:
+      return [
+        " _______  _   _  _____",
+        "|__   __|| | | ||_   _|",
+        "   | |   | | | |  | |",
+        "   | |   | |_| | _| |_",
+        "   |_|    \\___/ |_____|",
+        "",
+        "terminal portfolio: armed, awake, allergic to boring resumes",
+        "",
+        ...renderSignalScope(tick),
+        "",
+        "hot keys: launch | constellation | radar | matrix | demo | theme hotline"
+      ];
+  }
+}
+
 function History({entries, themeName}: {entries: HistoryEntry[]; themeName: ThemeName}): React.ReactElement {
   const theme = themes[themeName];
-  const visibleEntries = entries.slice(-8);
+  const visibleEntries = entries.slice(-6);
 
   return (
     <Box flexDirection="column">

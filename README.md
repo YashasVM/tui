@@ -2,6 +2,8 @@
 
 A real terminal portfolio with a Retro UNIX shell interface. It is built for developer audiences: fast scanning, GitHub-first project data, keyboard-driven exploration, and editable local JSON content.
 
+It now has an overdrive layer: animated ASCII signal scopes, project constellations, skill radar, matrix tape, and a reactor dashboard that makes the terminal feel alive.
+
 ## Quick Start
 
 ```bash
@@ -41,9 +43,27 @@ skills
 github
 contact
 resume
-theme amber|green|paper
+constellation
+radar
+timeline
+scan
+launch
+matrix
+demo
+theme amber|green|paper|cyan|hotline
 clear
 exit
+```
+
+Try this sequence first:
+
+```text
+launch
+theme hotline
+constellation
+radar
+matrix
+open 1
 ```
 
 ## Content

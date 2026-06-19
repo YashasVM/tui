@@ -70,4 +70,4 @@ export type PortfolioContent = {
   github: GitHubSnapshot;
 };
 
-export type ThemeName = "amber" | "green" | "paper";
+export type ThemeName = "amber" | "green" | "paper" | "cyan" | "hotline";

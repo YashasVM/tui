@@ -1,4 +1,15 @@
 import {findProject} from "./content.js";
+import {
+  renderDemoScript,
+  renderMatrixRain,
+  renderProjectConstellation,
+  renderReactor,
+  renderSignalScope,
+  renderSkillRadar,
+  renderSystemScan,
+  renderTimeline,
+  type ViewName
+} from "./spectacle.js";
 import type {PortfolioContent, Project, ThemeName} from "./types.js";
 
 export type ParsedCommand = {
@@ -13,6 +24,7 @@ export type CommandResult = {
   clear?: boolean;
   exit?: boolean;
   theme?: ThemeName;
+  view?: ViewName;
 };
 
 export function parseCommand(input: string): ParsedCommand {
@@ -53,6 +65,20 @@ export function executeCommand(
       return contact(content);
     case "resume":
       return resume(content);
+    case "constellation":
+      return constellation(content);
+    case "radar":
+      return radar(content);
+    case "timeline":
+      return timeline(content);
+    case "scan":
+      return scan(content);
+    case "launch":
+      return launch(content);
+    case "matrix":
+      return matrix(content);
+    case "demo":
+      return demo();
     case "theme":
       return theme(command.args, currentTheme);
     case "clear":
@@ -73,6 +99,14 @@ function normalizeCommandName(name: string): string {
     h: "help",
     ls: "projects",
     repos: "projects",
+    map: "constellation",
+    orbit: "constellation",
+    stars: "constellation",
+    wow: "launch",
+    overdrive: "launch",
+    blastoff: "launch",
+    rain: "matrix",
+    time: "timeline",
     repo: "github",
     gh: "github",
     me: "about",
@@ -96,7 +130,14 @@ function help(): CommandResult {
       "github            show synced GitHub snapshot status",
       "contact           show contact links",
       "resume            show resume link",
-      "theme [name]      list or switch themes: amber, green, paper",
+      "constellation     render the project orbit map",
+      "radar             sweep skill clusters",
+      "timeline          play the experience tape",
+      "scan              run a portfolio systems scan",
+      "launch            enter overdrive dashboard mode",
+      "matrix            render animated data rain",
+      "demo              print a guided command sequence",
+      "theme [name]      list or switch themes: amber, green, paper, cyan, hotline",
       "clear             clear command history",
       "exit              close the terminal UI"
     ]
@@ -207,9 +248,69 @@ function resume(content: PortfolioContent): CommandResult {
   };
 }
 
+function constellation(content: PortfolioContent): CommandResult {
+  return {
+    title: "constellation",
+    view: "constellation",
+    lines: renderProjectConstellation(content.projects, 0)
+  };
+}
+
+function radar(content: PortfolioContent): CommandResult {
+  return {
+    title: "radar",
+    view: "radar",
+    lines: renderSkillRadar(content.skills, 0)
+  };
+}
+
+function timeline(content: PortfolioContent): CommandResult {
+  return {
+    title: "timeline",
+    view: "timeline",
+    lines: renderTimeline(content)
+  };
+}
+
+function scan(content: PortfolioContent): CommandResult {
+  return {
+    title: "scan",
+    lines: renderSystemScan(content)
+  };
+}
+
+function launch(content: PortfolioContent): CommandResult {
+  return {
+    title: "overdrive",
+    view: "reactor",
+    lines: [
+      ...renderSignalScope(0),
+      "",
+      ...renderReactor(content, 0),
+      "",
+      "overdrive dashboard is now live."
+    ]
+  };
+}
+
+function matrix(content: PortfolioContent): CommandResult {
+  return {
+    title: "matrix",
+    view: "matrix",
+    lines: renderMatrixRain(content, 0)
+  };
+}
+
+function demo(): CommandResult {
+  return {
+    title: "demo",
+    lines: renderDemoScript()
+  };
+}
+
 function theme(args: string[], currentTheme: ThemeName): CommandResult {
   const requested = args[0] as ThemeName | undefined;
-  const themes: ThemeName[] = ["amber", "green", "paper"];
+  const themes: ThemeName[] = ["amber", "green", "paper", "cyan", "hotline"];
 
   if (!requested) {
     return {

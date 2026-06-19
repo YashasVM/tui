@@ -33,5 +33,21 @@ export const themes: Record<ThemeName, Theme> = {
     accent: "#fff5cf",
     border: "#d9c98f",
     danger: "#ff9b73"
+  },
+  cyan: {
+    name: "cyan",
+    foreground: "#8ef8ff",
+    muted: "#4f9aa1",
+    accent: "#d8fdff",
+    border: "#67d5dc",
+    danger: "#ff8a8a"
+  },
+  hotline: {
+    name: "hotline",
+    foreground: "#ff9ad5",
+    muted: "#9d5a7d",
+    accent: "#ffd1ef",
+    border: "#ff6fc2",
+    danger: "#ffd166"
   }
 };
