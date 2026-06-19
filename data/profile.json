@@ -1,0 +1,37 @@
+{
+  "profile": {
+    "name": "Yashas",
+    "title": "Developer",
+    "location": "India",
+    "bio": "Replace this with a sharp two-line developer intro: what you build, what you care about, and the kind of work you want next.",
+    "links": {
+      "github": "https://github.com/your-github-username",
+      "linkedin": "https://linkedin.com/in/your-linkedin",
+      "email": "mailto:you@example.com",
+      "website": "https://example.com"
+    },
+    "resume": "https://example.com/resume.pdf"
+  },
+  "skills": [
+    {
+      "group": "Languages",
+      "items": ["TypeScript", "JavaScript", "Python"]
+    },
+    {
+      "group": "Frontend",
+      "items": ["React", "Terminal UI", "Accessibility"]
+    },
+    {
+      "group": "Systems",
+      "items": ["Node.js", "Git", "APIs"]
+    }
+  ],
+  "experience": [
+    {
+      "period": "2026",
+      "role": "Portfolio Owner",
+      "organization": "tui-portfolio",
+      "summary": "Curate your strongest work here: shipped products, open-source wins, internships, freelance projects, or research."
+    }
+  ]
+}

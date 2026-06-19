@@ -1,0 +1,46 @@
+{
+  "name": "tui-portfolio",
+  "version": "0.1.0",
+  "description": "A Retro UNIX terminal portfolio for developers.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YashasVM/tui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YashasVM/tui/issues"
+  },
+  "homepage": "https://github.com/YashasVM/tui#readme",
+  "bin": {
+    "tui-portfolio": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "data",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "tsx src/cli.tsx",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "sync:github": "tsx src/cli.tsx sync"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ink": "^7.1.0",
+    "ink-text-input": "^6.0.0",
+    "meow": "^14.1.0",
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "ink-testing-library": "^4.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}

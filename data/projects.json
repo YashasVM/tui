@@ -1,0 +1,17 @@
+{
+  "projects": [
+    {
+      "id": "tui-portfolio",
+      "repo": "your-github-username/tui-portfolio",
+      "name": "tui-portfolio",
+      "description": "A terminal-native portfolio with a Retro UNIX shell interface.",
+      "stack": ["TypeScript", "Ink", "Node.js"],
+      "highlights": [
+        "Interactive command shell",
+        "Cached GitHub project metadata",
+        "Developer-first terminal presentation"
+      ],
+      "featured": true
+    }
+  ]
+}
