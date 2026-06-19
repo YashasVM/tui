@@ -11,6 +11,7 @@ describe("App", () => {
     expect(lastFrame()).toContain("Ada Dev / Systems Builder");
     expect(lastFrame()).toContain("view:home");
     expect(lastFrame()).toContain("terminal portfolio");
+    expect(lastFrame()).toContain("cinema");
     expect(lastFrame()).toContain("featured:");
   });
 });

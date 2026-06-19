@@ -9,7 +9,9 @@ export type ViewName =
   | "matrix"
   | "dossier"
   | "ops"
-  | "transmission";
+  | "transmission"
+  | "boss"
+  | "cinema";
 
 const pulseChars = [".", ":", "*", "#", "*", ":"];
 const rainGlyphs = "01TUI$#\\/[]{}<>+=-*";
@@ -215,6 +217,49 @@ export function renderTransmission(content: PortfolioContent, tick = 0): string[
   ];
 }
 
+export function renderBossCard(content: PortfolioContent, tick = 0): string[] {
+  const projectCount = String(content.projects.length).padStart(2, "0");
+  const stackCount = String(new Set(content.projects.flatMap((project) => project.stack)).size).padStart(2, "0");
+  const skillCount = String(content.skills.reduce((total, group) => total + group.items.length, 0)).padStart(2, "0");
+  const pulse = pulseChars[tick % pulseChars.length].repeat(4);
+
+  return [
+    "boss card",
+    "######### ##   ## ####",
+    "   ###    ##   ##  ## ",
+    "   ###    ##   ##  ## ",
+    "   ###    ##   ##  ## ",
+    "   ###    ####### ####",
+    "   ...     .....   .. ",
+    "",
+    `${content.profile.name.toUpperCase()} // ${content.profile.title.toUpperCase()}`,
+    `${content.profile.location} // PROJECTS:${projectCount} STACK:${stackCount} SKILLS:${skillCount} ${pulse}`,
+    "",
+    "This terminal does not introduce you. It arrives."
+  ];
+}
+
+export function renderCinemaSlate(content: PortfolioContent, tick = 0): string[] {
+  const reel = [
+    "REEL 01  // identity ignition",
+    "REEL 02  // project constellation",
+    "REEL 03  // skill radar sweep",
+    "REEL 04  // dossier lock",
+    "REEL 05  // transmission array"
+  ];
+  const active = tick % reel.length;
+
+  return [
+    "cinema mode",
+    "+----------------------------------------------------------+",
+    ...reel.map((line, index) => `| ${index === active ? ">>" : "  "} ${line.padEnd(51)} |`),
+    "+----------------------------------------------------------+",
+    `director: ${content.profile.name}`,
+    "autoplay: cycling live deck views until stop",
+    "run: stop | clear | theme hotline"
+  ];
+}
+
 export function renderDemoScript(): string[] {
   return [
     "guided detonation",
@@ -225,7 +270,9 @@ export function renderDemoScript(): string[] {
     "5. ops            -> live operations grid",
     "6. matrix         -> animated data tape",
     "7. transmit       -> contact array",
-    "8. theme hotline  -> flip into neon terminal overdrive"
+    "8. boss           -> terminal poster mode",
+    "9. cinema         -> self-running portfolio showreel",
+    "10. theme hotline -> flip into neon terminal overdrive"
   ];
 }
 

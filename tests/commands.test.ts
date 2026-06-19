@@ -55,6 +55,23 @@ describe("executeCommand", () => {
     expect(executeCommand("transmit", fixtureContent, "amber").view).toBe("transmission");
   });
 
+  it("starts and stops cinema mode", () => {
+    const cinema = executeCommand("cinema", fixtureContent, "amber");
+    expect(cinema.view).toBe("cinema");
+    expect(cinema.cinema).toBe(true);
+    expect(cinema.theme).toBe("hotline");
+
+    const stop = executeCommand("stop", fixtureContent, "hotline");
+    expect(stop.view).toBe("home");
+    expect(stop.cinema).toBe(false);
+  });
+
+  it("renders the boss poster card", () => {
+    const result = executeCommand("boss", fixtureContent, "amber");
+    expect(result.view).toBe("boss");
+    expect(result.lines?.join("\n")).toContain("boss card");
+  });
+
   it("warps directly into a project dossier", () => {
     const result = executeCommand("warp 1", fixtureContent, "amber");
     expect(result.view).toBe("dossier");

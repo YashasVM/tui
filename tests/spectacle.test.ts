@@ -1,5 +1,7 @@
 import {describe, expect, it} from "vitest";
 import {
+  renderBossCard,
+  renderCinemaSlate,
   renderMatrixRain,
   renderOpsGrid,
   renderProjectDossier,
@@ -22,6 +24,8 @@ describe("spectacle renderers", () => {
     expect(renderMatrixRain(fixtureContent, 1)).toHaveLength(7);
     expect(renderOpsGrid(fixtureContent, 1).join("\n")).toContain("ops grid");
     expect(renderTransmission(fixtureContent, 1).join("\n")).toContain("transmission array");
+    expect(renderBossCard(fixtureContent, 1).join("\n")).toContain("boss card");
+    expect(renderCinemaSlate(fixtureContent, 1).join("\n")).toContain("cinema mode");
   });
 
   it("summarizes portfolio readiness", () => {

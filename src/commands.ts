@@ -1,6 +1,8 @@
 import {findProject} from "./content.js";
 import {
   renderDemoScript,
+  renderBossCard,
+  renderCinemaSlate,
   renderMatrixRain,
   renderOpsGrid,
   renderProjectDossier,
@@ -29,6 +31,7 @@ export type CommandResult = {
   theme?: ThemeName;
   view?: ViewName;
   focusProjectId?: string;
+  cinema?: boolean;
 };
 
 export function parseCommand(input: string): ParsedCommand {
@@ -87,6 +90,12 @@ export function executeCommand(
       return ops(content);
     case "transmit":
       return transmit(content);
+    case "boss":
+      return boss(content);
+    case "cinema":
+      return cinema(content);
+    case "stop":
+      return stop();
     case "demo":
       return demo();
     case "theme":
@@ -120,6 +129,12 @@ function normalizeCommandName(name: string): string {
     mission: "ops",
     contactme: "transmit",
     signal: "transmit",
+    poster: "boss",
+    flex: "boss",
+    finalform: "boss",
+    show: "cinema",
+    showtime: "cinema",
+    autoplay: "cinema",
     time: "timeline",
     repo: "github",
     gh: "github",
@@ -153,6 +168,9 @@ function help(): CommandResult {
       "matrix            render animated data rain",
       "ops               show a live operations grid",
       "transmit          open contact transmission array",
+      "boss              render the terminal poster card",
+      "cinema            autoplay a rotating portfolio showreel",
+      "stop              stop cinema autoplay",
       "demo              print a guided command sequence",
       "theme [name]      list or switch themes: amber, green, paper, cyan, hotline",
       "clear             clear command history",
@@ -335,6 +353,33 @@ function transmit(content: PortfolioContent): CommandResult {
     title: "transmission",
     view: "transmission",
     lines: renderTransmission(content, 0)
+  };
+}
+
+function boss(content: PortfolioContent): CommandResult {
+  return {
+    title: "boss",
+    view: "boss",
+    lines: renderBossCard(content, 0)
+  };
+}
+
+function cinema(content: PortfolioContent): CommandResult {
+  return {
+    title: "cinema",
+    view: "cinema",
+    cinema: true,
+    theme: "hotline",
+    lines: renderCinemaSlate(content, 0)
+  };
+}
+
+function stop(): CommandResult {
+  return {
+    title: "stop",
+    view: "home",
+    cinema: false,
+    lines: ["cinema autoplay stopped.", "manual control restored."]
   };
 }
 

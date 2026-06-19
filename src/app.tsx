@@ -3,6 +3,8 @@ import {Box, Text, useApp, useInput, useStdout} from "ink";
 import TextInput from "ink-text-input";
 import {executeCommand, type CommandResult} from "./commands.js";
 import {
+  renderBossCard,
+  renderCinemaSlate,
   renderMatrixRain,
   renderOpsGrid,
   renderProjectDossier,
@@ -42,6 +44,7 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [activeView, setActiveView] = useState<ViewName>("home");
   const [focusProjectId, setFocusProjectId] = useState<string | undefined>();
+  const [cinemaMode, setCinemaMode] = useState(false);
   const [tick, setTick] = useState(0);
   const [bootComplete, setBootComplete] = useState(skipBoot);
   const [bootIndex, setBootIndex] = useState(skipBoot ? bootLines.length : 0);
@@ -79,6 +82,19 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
     return () => clearInterval(timer);
   }, [bootComplete]);
 
+  useEffect(() => {
+    if (!cinemaMode || !bootComplete) {
+      return;
+    }
+
+    const sequence: ViewName[] = ["boss", "reactor", "constellation", "radar", "dossier", "ops", "matrix", "transmission", "cinema"];
+    const frame = Math.floor(tick / 9);
+    const nextView = sequence[frame % sequence.length];
+    const nextProject = content.projects.length > 0 ? content.projects[frame % content.projects.length]?.id : undefined;
+    setActiveView(nextView);
+    setFocusProjectId(nextProject);
+  }, [bootComplete, cinemaMode, content.projects, tick]);
+
   const featured = useMemo(() => content.projects.filter((project) => project.featured).slice(0, 3), [content.projects]);
 
   function submit(commandText: string): void {
@@ -96,11 +112,16 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
       setFocusProjectId(result.focusProjectId);
     }
 
+    if (typeof result.cinema === "boolean") {
+      setCinemaMode(result.cinema);
+    }
+
     if (result.clear) {
       setHistory([]);
       setInput("");
       setActiveView("home");
       setFocusProjectId(undefined);
+      setCinemaMode(false);
       return;
     }
 
@@ -130,19 +151,30 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
               <Text color={theme.muted}>, </Text>
               <Text color={theme.accent}>radar</Text>
               <Text color={theme.muted}>, </Text>
+              <Text color={theme.accent}>cinema</Text>
+              <Text color={theme.muted}>, </Text>
+              <Text color={theme.accent}>boss</Text>
+              <Text color={theme.muted}>, </Text>
               <Text color={theme.accent}>matrix</Text>
               <Text color={theme.muted}>. </Text>
               <Text color={theme.accent}>esc</Text>
               <Text color={theme.muted}> to quit.</Text>
             </Box>
-            <LiveDeck content={content} themeName={themeName} activeView={activeView} focusProjectId={focusProjectId} tick={tick} />
+            <LiveDeck
+              content={content}
+              themeName={themeName}
+              activeView={activeView}
+              focusProjectId={focusProjectId}
+              cinemaMode={cinemaMode}
+              tick={tick}
+            />
             <FeaturedProjects items={featured} themeName={themeName} />
             <History entries={history} themeName={themeName} />
             <Prompt input={input} onChange={setInput} onSubmit={submit} themeName={themeName} />
           </Box>
         )}
       </Frame>
-      <StatusBar content={content} themeName={themeName} />
+      <StatusBar content={content} themeName={themeName} cinemaMode={cinemaMode} />
     </Box>
   );
 }
@@ -200,12 +232,14 @@ function LiveDeck({
   themeName,
   activeView,
   focusProjectId,
+  cinemaMode,
   tick
 }: {
   content: PortfolioContent;
   themeName: ThemeName;
   activeView: ViewName;
   focusProjectId?: string;
+  cinemaMode: boolean;
   tick: number;
 }): React.ReactElement {
   const theme = themes[themeName];
@@ -215,6 +249,7 @@ function LiveDeck({
     <Box flexDirection="column" marginBottom={1}>
       <Text color={theme.muted}>
         view:{activeView} {focusProjectId ? `lock:${focusProjectId} ` : ""}tick:{String(tick % 1000).padStart(3, "0")}
+        {cinemaMode ? " cinema:on" : ""}
       </Text>
       {lines.map((line, index) => (
         <Text key={`${activeView}-${index}-${line}`} color={index === 0 ? theme.accent : theme.foreground}>
@@ -247,6 +282,10 @@ function activeViewLines(content: PortfolioContent, activeView: ViewName, tick: 
       return renderOpsGrid(content, tick);
     case "transmission":
       return renderTransmission(content, tick);
+    case "boss":
+      return renderBossCard(content, tick);
+    case "cinema":
+      return renderCinemaSlate(content, tick);
     case "home":
     default:
       return [
@@ -260,7 +299,7 @@ function activeViewLines(content: PortfolioContent, activeView: ViewName, tick: 
         "",
         ...renderSignalScope(tick),
         "",
-        "hot keys: launch | warp 1 | ops | transmit | constellation | radar | matrix"
+        "hot keys: cinema | stop | boss | launch | warp 1 | ops | transmit | matrix"
       ];
   }
 }
@@ -306,13 +345,21 @@ function Prompt({
   );
 }
 
-function StatusBar({content, themeName}: {content: PortfolioContent; themeName: ThemeName}): React.ReactElement {
+function StatusBar({
+  content,
+  themeName,
+  cinemaMode
+}: {
+  content: PortfolioContent;
+  themeName: ThemeName;
+  cinemaMode: boolean;
+}): React.ReactElement {
   const theme = themes[themeName];
   const sync = content.github.syncedAt ? `synced ${content.github.syncedAt.slice(0, 10)}` : "github cache empty";
   return (
     <Box paddingX={1}>
       <Text color={theme.muted}>
-        theme:{themeName} | {sync} | data:local json | shell:interactive
+        theme:{themeName} | {sync} | data:local json | shell:{cinemaMode ? "cinema" : "interactive"}
       </Text>
     </Box>
   );
