@@ -1,6 +1,15 @@
 import type {PortfolioContent, Project, SkillGroup} from "./types.js";
 
-export type ViewName = "home" | "constellation" | "radar" | "timeline" | "reactor" | "matrix";
+export type ViewName =
+  | "home"
+  | "constellation"
+  | "radar"
+  | "timeline"
+  | "reactor"
+  | "matrix"
+  | "dossier"
+  | "ops"
+  | "transmission";
 
 const pulseChars = [".", ":", "*", "#", "*", ":"];
 const rainGlyphs = "01TUI$#\\/[]{}<>+=-*";
@@ -85,7 +94,7 @@ export function renderReactor(content: PortfolioContent, tick = 0): string[] {
     meter("motion", motionScore, tick + 6),
     "",
     "status: overdrive available",
-    "run: constellation | radar | matrix | demo"
+    "run: constellation | radar | matrix | ops | transmit | demo"
   ];
 }
 
@@ -132,6 +141,80 @@ export function renderSystemScan(content: PortfolioContent): string[] {
   ];
 }
 
+export function renderProjectDossier(project: Project | undefined, tick = 0): string[] {
+  if (!project) {
+    return [
+      "project dossier",
+      "no project locked",
+      "run: open <id|repo-name|number>"
+    ];
+  }
+
+  const stack = project.stack.length > 0 ? project.stack.join(" / ") : project.language ?? "unclassified";
+  const signal = Math.min(100, 42 + (project.highlights.length * 14) + (project.featured ? 18 : 0) + Math.min(project.stars ?? 0, 26));
+  const heat = pulseChars[(tick + project.id.length) % pulseChars.length];
+
+  return [
+    `project dossier // ${project.id}`,
+    "+----------------------------------------------------------+",
+    `| name       ${fit(project.name, 46)} |`,
+    `| repo       ${fit(project.repo ?? "local-only", 46)} |`,
+    `| url        ${fit(project.url ?? "not set", 46)} |`,
+    `| stack      ${fit(stack, 46)} |`,
+    `| signal     ${fit(`${signal}% ${heat.repeat(Math.max(1, Math.floor(signal / 18)))}`, 46)} |`,
+    "+----------------------------------------------------------+",
+    project.description,
+    "",
+    "highlight tape:",
+    ...(project.highlights.length > 0 ? project.highlights.map((item, index) => `${index + 1}. ${item}`) : ["1. add highlights in data/projects.json"]),
+    "",
+    "run: ops | constellation | matrix | contact"
+  ];
+}
+
+export function renderOpsGrid(content: PortfolioContent, tick = 0): string[] {
+  const projectCount = content.projects.length;
+  const featuredCount = content.projects.filter((project) => project.featured).length;
+  const stackCount = new Set(content.projects.flatMap((project) => project.stack)).size;
+  const repoCount = content.github.repos.length;
+  const grid = [
+    ["projects", projectCount],
+    ["featured", featuredCount],
+    ["stack tags", stackCount],
+    ["repos", repoCount],
+    ["skills", content.skills.reduce((total, group) => total + group.items.length, 0)],
+    ["links", Object.values(content.profile.links).filter(Boolean).length]
+  ] as const;
+
+  return [
+    "ops grid",
+    "+--------------+---------+----------------------------+",
+    ...grid.map(([label, value], index) => {
+      const beacon = pulseChars[(tick + index) % pulseChars.length];
+      const bar = "#".repeat(Math.min(24, Math.max(1, value * 2))).padEnd(24, ".");
+      return `| ${label.padEnd(12)} | ${String(value).padStart(5)} ${beacon} | ${bar} |`;
+    }),
+    "+--------------+---------+----------------------------+",
+    `cache: ${content.github.syncedAt ?? "never synced"}`
+  ];
+}
+
+export function renderTransmission(content: PortfolioContent, tick = 0): string[] {
+  const links = Object.entries(content.profile.links).filter(([, value]) => Boolean(value));
+  const carrier = renderSignalScope(tick, 50).slice(1);
+
+  return [
+    "transmission array",
+    ...carrier,
+    "",
+    `from: ${content.profile.name} <${content.profile.title}>`,
+    ...links.map(([name, value]) => `${name.padEnd(10)} ${value}`),
+    content.profile.resume ? `resume     ${content.profile.resume}` : "resume     not set",
+    "",
+    "status: contact vectors armed"
+  ];
+}
+
 export function renderDemoScript(): string[] {
   return [
     "guided detonation",
@@ -139,8 +222,10 @@ export function renderDemoScript(): string[] {
     "2. constellation  -> project orbit map",
     "3. radar          -> skill sweep",
     "4. open 1         -> inspect the first project node",
-    "5. matrix         -> animated data tape",
-    "6. theme hotline  -> flip into neon terminal overdrive"
+    "5. ops            -> live operations grid",
+    "6. matrix         -> animated data tape",
+    "7. transmit       -> contact array",
+    "8. theme hotline  -> flip into neon terminal overdrive"
   ];
 }
 
@@ -159,4 +244,8 @@ function meter(label: string, value: number, tick: number): string {
   }
 
   return `${label.padEnd(9)} [${bar}] ${String(value).padStart(3)}%`;
+}
+
+function fit(value: string, width: number): string {
+  return value.length > width ? `${value.slice(0, width - 3)}...` : value.padEnd(width);
 }

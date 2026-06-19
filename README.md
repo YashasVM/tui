@@ -4,6 +4,8 @@ A real terminal portfolio with a Retro UNIX shell interface. It is built for dev
 
 It now has an overdrive layer: animated ASCII signal scopes, project constellations, skill radar, matrix tape, and a reactor dashboard that makes the terminal feel alive.
 
+The live deck can also lock onto a project dossier, render a status-grid, and open a contact transmission array. It is still plain terminal output, but it behaves more like a tiny sci-fi operating system than a resume.
+
 ## Quick Start
 
 ```bash
@@ -39,6 +41,7 @@ help
 about
 projects
 open <id|repo-name|number>
+warp <id|repo-name|number>
 skills
 github
 contact
@@ -49,6 +52,8 @@ timeline
 scan
 launch
 matrix
+ops
+transmit
 demo
 theme amber|green|paper|cyan|hotline
 clear
@@ -62,8 +67,10 @@ launch
 theme hotline
 constellation
 radar
+warp 1
+ops
 matrix
-open 1
+transmit
 ```
 
 ## Content

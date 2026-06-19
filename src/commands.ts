@@ -2,11 +2,14 @@ import {findProject} from "./content.js";
 import {
   renderDemoScript,
   renderMatrixRain,
+  renderOpsGrid,
+  renderProjectDossier,
   renderProjectConstellation,
   renderReactor,
   renderSignalScope,
   renderSkillRadar,
   renderSystemScan,
+  renderTransmission,
   renderTimeline,
   type ViewName
 } from "./spectacle.js";
@@ -25,6 +28,7 @@ export type CommandResult = {
   exit?: boolean;
   theme?: ThemeName;
   view?: ViewName;
+  focusProjectId?: string;
 };
 
 export function parseCommand(input: string): ParsedCommand {
@@ -57,6 +61,8 @@ export function executeCommand(
       return projects(content.projects);
     case "open":
       return openProject(command.args, content.projects);
+    case "warp":
+      return openProject(command.args, content.projects);
     case "skills":
       return skills(content);
     case "github":
@@ -77,6 +83,10 @@ export function executeCommand(
       return launch(content);
     case "matrix":
       return matrix(content);
+    case "ops":
+      return ops(content);
+    case "transmit":
+      return transmit(content);
     case "demo":
       return demo();
     case "theme":
@@ -106,6 +116,10 @@ function normalizeCommandName(name: string): string {
     overdrive: "launch",
     blastoff: "launch",
     rain: "matrix",
+    status: "ops",
+    mission: "ops",
+    contactme: "transmit",
+    signal: "transmit",
     time: "timeline",
     repo: "github",
     gh: "github",
@@ -126,6 +140,7 @@ function help(): CommandResult {
       "about             print profile summary",
       "projects          list curated and synced GitHub projects",
       "open <id|#>       inspect a project by id, repo name, or list number",
+      "warp <id|#>       lock a project dossier into the live deck",
       "skills            list technical skill groups",
       "github            show synced GitHub snapshot status",
       "contact           show contact links",
@@ -136,6 +151,8 @@ function help(): CommandResult {
       "scan              run a portfolio systems scan",
       "launch            enter overdrive dashboard mode",
       "matrix            render animated data rain",
+      "ops               show a live operations grid",
+      "transmit          open contact transmission array",
       "demo              print a guided command sequence",
       "theme [name]      list or switch themes: amber, green, paper, cyan, hotline",
       "clear             clear command history",
@@ -197,7 +214,11 @@ function openProject(args: string[], allProjects: Project[]): CommandResult {
 
   return {
     title: project.name,
+    view: "dossier",
+    focusProjectId: project.id,
     lines: [
+      ...renderProjectDossier(project, 0),
+      "",
       project.description,
       "",
       `repo: ${project.repo ?? "local-only"}`,
@@ -298,6 +319,22 @@ function matrix(content: PortfolioContent): CommandResult {
     title: "matrix",
     view: "matrix",
     lines: renderMatrixRain(content, 0)
+  };
+}
+
+function ops(content: PortfolioContent): CommandResult {
+  return {
+    title: "ops",
+    view: "ops",
+    lines: renderOpsGrid(content, 0)
+  };
+}
+
+function transmit(content: PortfolioContent): CommandResult {
+  return {
+    title: "transmission",
+    view: "transmission",
+    lines: renderTransmission(content, 0)
   };
 }
 

@@ -4,10 +4,13 @@ import TextInput from "ink-text-input";
 import {executeCommand, type CommandResult} from "./commands.js";
 import {
   renderMatrixRain,
+  renderOpsGrid,
+  renderProjectDossier,
   renderProjectConstellation,
   renderReactor,
   renderSignalScope,
   renderSkillRadar,
+  renderTransmission,
   renderTimeline,
   type ViewName
 } from "./spectacle.js";
@@ -38,6 +41,7 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [activeView, setActiveView] = useState<ViewName>("home");
+  const [focusProjectId, setFocusProjectId] = useState<string | undefined>();
   const [tick, setTick] = useState(0);
   const [bootComplete, setBootComplete] = useState(skipBoot);
   const [bootIndex, setBootIndex] = useState(skipBoot ? bootLines.length : 0);
@@ -88,10 +92,15 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
       setActiveView(result.view);
     }
 
+    if (result.focusProjectId) {
+      setFocusProjectId(result.focusProjectId);
+    }
+
     if (result.clear) {
       setHistory([]);
       setInput("");
       setActiveView("home");
+      setFocusProjectId(undefined);
       return;
     }
 
@@ -126,7 +135,7 @@ export function App({content, skipBoot = false}: AppProps): React.ReactElement {
               <Text color={theme.accent}>esc</Text>
               <Text color={theme.muted}> to quit.</Text>
             </Box>
-            <LiveDeck content={content} themeName={themeName} activeView={activeView} tick={tick} />
+            <LiveDeck content={content} themeName={themeName} activeView={activeView} focusProjectId={focusProjectId} tick={tick} />
             <FeaturedProjects items={featured} themeName={themeName} />
             <History entries={history} themeName={themeName} />
             <Prompt input={input} onChange={setInput} onSubmit={submit} themeName={themeName} />
@@ -190,19 +199,23 @@ function LiveDeck({
   content,
   themeName,
   activeView,
+  focusProjectId,
   tick
 }: {
   content: PortfolioContent;
   themeName: ThemeName;
   activeView: ViewName;
+  focusProjectId?: string;
   tick: number;
 }): React.ReactElement {
   const theme = themes[themeName];
-  const lines = activeViewLines(content, activeView, tick);
+  const lines = activeViewLines(content, activeView, tick, focusProjectId);
 
   return (
     <Box flexDirection="column" marginBottom={1}>
-      <Text color={theme.muted}>view:{activeView} tick:{String(tick % 1000).padStart(3, "0")}</Text>
+      <Text color={theme.muted}>
+        view:{activeView} {focusProjectId ? `lock:${focusProjectId} ` : ""}tick:{String(tick % 1000).padStart(3, "0")}
+      </Text>
       {lines.map((line, index) => (
         <Text key={`${activeView}-${index}-${line}`} color={index === 0 ? theme.accent : theme.foreground}>
           {line || " "}
@@ -212,7 +225,11 @@ function LiveDeck({
   );
 }
 
-function activeViewLines(content: PortfolioContent, activeView: ViewName, tick: number): string[] {
+function activeViewLines(content: PortfolioContent, activeView: ViewName, tick: number, focusProjectId?: string): string[] {
+  const focusedProject = focusProjectId
+    ? content.projects.find((project) => project.id === focusProjectId)
+    : content.projects.find((project) => project.featured) ?? content.projects[0];
+
   switch (activeView) {
     case "constellation":
       return renderProjectConstellation(content.projects, tick);
@@ -224,6 +241,12 @@ function activeViewLines(content: PortfolioContent, activeView: ViewName, tick: 
       return renderReactor(content, tick);
     case "matrix":
       return renderMatrixRain(content, tick);
+    case "dossier":
+      return renderProjectDossier(focusedProject, tick);
+    case "ops":
+      return renderOpsGrid(content, tick);
+    case "transmission":
+      return renderTransmission(content, tick);
     case "home":
     default:
       return [
@@ -237,7 +260,7 @@ function activeViewLines(content: PortfolioContent, activeView: ViewName, tick: 
         "",
         ...renderSignalScope(tick),
         "",
-        "hot keys: launch | constellation | radar | matrix | demo | theme hotline"
+        "hot keys: launch | warp 1 | ops | transmit | constellation | radar | matrix"
       ];
   }
 }

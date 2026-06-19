@@ -24,6 +24,8 @@ describe("executeCommand", () => {
   it("opens projects by id", () => {
     const result = executeCommand("open console-kit", fixtureContent, "amber");
     expect(result.title).toBe("console-kit");
+    expect(result.view).toBe("dossier");
+    expect(result.focusProjectId).toBe("console-kit");
     expect(result.lines?.join("\n")).toContain("Composable panes");
   });
 
@@ -46,6 +48,17 @@ describe("executeCommand", () => {
   it("renders constellation and radar commands", () => {
     expect(executeCommand("constellation", fixtureContent, "amber").view).toBe("constellation");
     expect(executeCommand("radar", fixtureContent, "amber").lines?.join("\n")).toContain("skill radar");
+  });
+
+  it("renders ops and transmission live views", () => {
+    expect(executeCommand("ops", fixtureContent, "amber").view).toBe("ops");
+    expect(executeCommand("transmit", fixtureContent, "amber").view).toBe("transmission");
+  });
+
+  it("warps directly into a project dossier", () => {
+    const result = executeCommand("warp 1", fixtureContent, "amber");
+    expect(result.view).toBe("dossier");
+    expect(result.lines?.join("\n")).toContain("project dossier");
   });
 
   it("supports expanded theme names", () => {
